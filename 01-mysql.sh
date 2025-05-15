@@ -50,4 +50,4 @@ fi
 netstat -lntp  #Active Internet connections
 ps -ef | grep mysqld  #current running process for mysqld
 systemctl status mysqld  #To check the status for mysqld
-
+# mysql -h mysql.online.anjansriram.shop -u root -pExpenseApp@1 #command to connect mysql database
