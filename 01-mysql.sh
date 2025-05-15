@@ -48,5 +48,6 @@ else
 fi
 
 netstat -lntp  #Active Internet connections
-systemctl status mysqld  #To check the status for mysqld
 ps -ef | grep mysqld  #current running process for mysqld
+systemctl status mysqld  #To check the status for mysqld
+
