@@ -32,7 +32,7 @@ echo "script started executing at: $TIMESTAMP" &>>$LOG_FILE_NAME
 
 CHECK_ROOT
 
-FILES_TO_DELETE=$(find $SOURCE_DIR -name ".log" -mmin +60)
+FILES_TO_DELETE=$(find $SOURCE_DIR -name ".log" -mmin +10)
 echo "Files to be deleted: $FILES_TO_DELETE"
 
 while read -r file
