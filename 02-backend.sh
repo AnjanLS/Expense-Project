@@ -63,7 +63,7 @@ VALIDATE $? "changing dir to /app"
 rm -rf /app/*
 VALIDATE $? "removing previous packages and download new zip package"
 
-unzip /tmp/backend.zip -y &>>$LOG_FILE_NAME
+unzip /tmp/backend.zip &>>$LOG_FILE_NAME
 VALIDATE $? "unziping the download zip package"
 
 npm install &>>$LOG_FILE_NAME
