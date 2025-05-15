@@ -54,3 +54,4 @@ ps -ef | grep mysqld &>>$LOG_FILE_NAME #current running process for mysqld
 systemctl status mysqld &>>$LOG_FILE_NAME #To check the status for mysqld
 mysql -h mysql.anjansriram.shop -u root -pExpenseApp@1 #command to connect mysql database
 show databases;
+exit
