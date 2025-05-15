@@ -46,3 +46,7 @@ then
 else
     echo -e "Mysql-server... is already $Y Installed $N"
 fi
+
+netstat -lntp
+
+systemctl status mysqld
