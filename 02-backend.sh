@@ -45,13 +45,13 @@ VALIDATE $? "Installing  nodejs"
 # useradd expense &>>$LOG_FILE_NAME
 # VALIDATE $? "creating a new user expense"
 if id expense &>/dev/null; then
-  echo -e "User 'expense' already exists... $Y SKIPPING $N" &>>$LOG_FILE_NAME
+  echo -e "User 'expense' already exists... $P SKIPPING $N" &>>$LOG_FILE_NAME
 else
   useradd expense &>>$LOG_FILE_NAME
   VALIDATE $? "Creating a new user 'expense'"
 fi
 
-mkdir /app 
+mkdir -p /app 
 VALIDATE $? "creating a new dir /app"
 
 curl -o /tmp/backend.zip https://expense-builds.s3.us-east-1.amazonaws.com/expense-backend-v2.zip &>>$LOG_FILE_NAME
@@ -60,7 +60,7 @@ VALIDATE $? "Downloading packages"
 cd /app
 VALIDATE $? "changing dir to /app"
 
-unzip /tmp/backend.zip &>>$LOG_FILE_NAME
+unzip /tmp/backend.zip -y &>>$LOG_FILE_NAME
 VALIDATE $? "unziping the download xip package"
 
 npm install &>>$LOG_FILE_NAME
@@ -88,3 +88,6 @@ VALIDATE $? "Enabiling backend"
 
 systemctl status backend &>>$LOG_FILE_NAME
 VALIDATE $? "Checking status backend"
+
+netstat -lntp &>>$LOG_FILE_NAME #Active Internet connections
+ps -ef | grep node &>>$LOG_FILE_NAME #current running process for nodejs
