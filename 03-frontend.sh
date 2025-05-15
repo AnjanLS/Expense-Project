@@ -59,3 +59,7 @@ VALIDATE $? "Restarting nginx"
 
 systemctl status nginx &>>$LOG_FILE_NAME
 VALIDATE $? "Checking the status for nginx-web-server"
+
+echo -e "Nginx is active. Triggering URL..." &>>$LOG_FILE_NAME
+curl -s -o /dev/null -w "%{http_code}" http://anjansriram.shop &>>$LOG_FILE_NAME
+VALIDATE $? "Triggering http://anjansriram.shop"
