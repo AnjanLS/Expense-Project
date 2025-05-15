@@ -56,3 +56,6 @@ VALIDATE $? "Enabiling nginx"
 
 systemctl restart nginx
 VALIDATE $? "Restarting nginx"
+
+systemctl status nginx &>>$LOG_FILE_NAME
+VALIDATE $? "Checking the status for nginx-web-server"
