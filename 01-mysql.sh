@@ -5,6 +5,7 @@ USERID=$(id -u)    #check the user id
 R="\e[31m"
 G="\e[32m"
 Y="\e[33m"
+P="\e[35m"
 N="\e[0m"
 
 LOGS_FOLDER="/var/log/expense-logs"
@@ -45,6 +46,7 @@ then
     VALIDATE $? "setting root password for mysql-server"
 else
     echo -e "Mysql-server... is already $Y Installed $N"
+    echo -e "Mysql-server root password already setup $P SKIPPING $N"
 fi
 
 netstat -lntp  #Active Internet connections
