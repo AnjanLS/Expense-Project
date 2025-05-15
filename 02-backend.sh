@@ -60,8 +60,11 @@ VALIDATE $? "Downloading packages"
 cd /app
 VALIDATE $? "changing dir to /app"
 
+rm -rf /app/*
+VALIDATE $? "removing previous packages and download new zip package"
+
 unzip /tmp/backend.zip -y &>>$LOG_FILE_NAME
-VALIDATE $? "unziping the download xip package"
+VALIDATE $? "unziping the download zip package"
 
 npm install &>>$LOG_FILE_NAME
 VALIDATE $? "Installing dependencies"
@@ -80,11 +83,11 @@ VALIDATE $? "Setting-up the transaction schema and tables"
 systemctl daemon-reload &>>$LOG_FILE_NAME
 VALIDATE $? "Daemon reload" 
 
-systemctl start backend &>>$LOG_FILE_NAME
-VALIDATE $? "starting backend"
-
 systemctl enable backend &>>$LOG_FILE_NAME
 VALIDATE $? "Enabiling backend"
+
+systemctl restart backend &>>$LOG_FILE_NAME
+VALIDATE $? "Restarting backend"
 
 systemctl status backend &>>$LOG_FILE_NAME
 VALIDATE $? "Checking status backend"
