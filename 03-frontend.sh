@@ -8,7 +8,7 @@ Y="\e[33m"
 P="\e[35m"
 N="\e[0m"
 
-LOGS_FOLDER="/home/ec2-user/Expense-Project/expense-logs"
+LOGS_FOLDER="/var/log/expense-logs"
 LOG_FILE=$(echo $0 | cut -d "." -f1)
 TIMESTAMP=$(date +%d-%m-%Y-%H-%M-%S)
 LOG_FILE_NAME="$LOGS_FOLDER/$LOG_FILE-$TIMESTAMP.log"
