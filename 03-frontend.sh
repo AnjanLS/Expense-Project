@@ -71,3 +71,7 @@ if [ "$HTTP_CODE" -ne 200 ]; then
 else
     echo "Congrats! You hosted your website on the Internet!"
 fi
+
+CENTRAL_LOG_SERVER="ec2-user@172.31.0.5"
+scp "$LOG_FILE_NAME" $CENTRAL_LOG_SERVER:"$LOGS_FOLDER/"
+VALIDATE $? "Transferring log to central log server"

@@ -58,3 +58,7 @@ ps -ef | grep mysqld &>>$LOG_FILE_NAME #current running process for mysqld
 
 mysql -h mysql.anjansriram.shop -u root -pExpenseApp@1 -e 'show databases;' &>>$LOG_FILE_NAME #command to connect mysql database
 VALIDATE $? "Logging into database host"
+
+CENTRAL_LOG_SERVER="ec2-user@172.31.0.11"
+scp "$LOG_FILE_NAME" $CENTRAL_LOG_SERVER:"$LOGS_FOLDER/"
+VALIDATE $? "Transferring log to central log server"
