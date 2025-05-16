@@ -50,12 +50,11 @@ else
     echo -e "Mysql-server root password already setup $P SKIPPING $N"
 fi
 
-netstat -lntp &>>$LOG_FILE_NAME #Active Internet connections
-
-ps -ef | grep mysqld &>>$LOG_FILE_NAME #current running process for mysqld
-
 systemctl status mysqld &>>$LOG_FILE_NAME #To check the status for mysqld
 VALIDATE $? "Checking status mysqld"
 
+netstat -lntp &>>$LOG_FILE_NAME #Active Internet connections
+ps -ef | grep mysqld &>>$LOG_FILE_NAME #current running process for mysqld
+
 mysql -h mysql.anjansriram.shop -u root -pExpenseApp@1 -e 'show databases;' &>>$LOG_FILE_NAME #command to connect mysql database
-VALIDATE $? "Logging into host"
+VALIDATE $? "Logging into database host"
