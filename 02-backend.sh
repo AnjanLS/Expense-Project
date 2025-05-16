@@ -95,7 +95,3 @@ VALIDATE $? "Checking status backend"
 
 netstat -lntp &>>$LOG_FILE_NAME #Active Internet connections
 ps -ef | grep node &>>$LOG_FILE_NAME #current running process for nodejs
-
-CENTRAL_LOG_SERVER="ec2-user@172.31.0.8"
-scp "$LOG_FILE_NAME" $CENTRAL_LOG_SERVER:"$LOGS_FOLDER/"
-VALIDATE $? "Transferring log to central log server"
