@@ -62,10 +62,12 @@ systemctl status nginx &>>$LOG_FILE_NAME
 VALIDATE $? "Checking the status for nginx-web-server"
 
 echo -e "Nginx is active. Triggering URL..." &>>$LOG_FILE_NAME
-curl -s -o /dev/null -w "%{http_code}" http://anjansriram.shop &>>$LOG_FILE_NAME
-VALIDATE $? "Triggering http://anjansriram.shop"
 
-if [ $? -ne 0 ]; then
-    echo "Please attach your frontend public-IP to public doamin record."
+HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://anjansriram.shop)
+echo "HTTP status code: $HTTP_CODE" &>>$LOG_FILE_NAME
+
+if [ "$HTTP_CODE" -ne 200 ]; then
+    echo "Please attach your frontend public-IP to public domain record."
 else
-    echo "congrats you hosted your website on the Internet!"
+    echo "Congrats! You hosted your website on the Internet!"
+fi
