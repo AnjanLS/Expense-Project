@@ -1,4 +1,5 @@
 #!/bin/bash
+export HOME=/home/ec2-user
 
 USERID=$(id -u)    #check the user id 
 
@@ -74,19 +75,14 @@ fi
 
 # Define the private IPs (or internal DNS names) of all servers
 OTHER_SERVERS=(
-  "ec2-user@172.31.0.11"  # database server
-  "ec2-user@172.31.0.8"  # backend server
-  "ec2-user@172.31.0.5"  # frontend server
+    "ec2-user@172.31.0.11"  # Database
+    "ec2-user@172.31.0.8"  # Backend 
 )
 
-# Get the current server's private IP
-MY_IP=$(hostname -I | awk '{print $1}')
-
+# Copy logs from each server
 for server in "${OTHER_SERVERS[@]}"; do
-  if [[ "$server" != *"$MY_IP"* ]]; then
-    echo "Fetching logs from $server..."
-    scp "$server:$LOGS_FOLDER/"*.log "$LOGS_FOLDER/" 2>/dev/null
-  fi
+  echo "Fetching logs from $server..."
+  scp $server:"$LOGS_FOLDER/"*.log "$LOGS_FOLDER/" 2>/dev/null
 done
 
 echo "Logs from all servers are now in: $LOGS_FOLDER"
