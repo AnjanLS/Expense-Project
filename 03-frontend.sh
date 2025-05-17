@@ -82,7 +82,7 @@ OTHER_SERVERS=(
 # Copy logs from each server
 for server in "${OTHER_SERVERS[@]}"; do
   echo "Fetching logs from $server..."
-  scp $server:"$LOGS_FOLDER/"*.log "$LOGS_FOLDER/" 2>/dev/null
+  sudo -u ec2-user scp "$server":"$LOGS_FOLDER/"*.log "$LOGS_FOLDER/" 2>/dev/null
 done
 
 echo "Logs from all servers are now in: $LOGS_FOLDER"
