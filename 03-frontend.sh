@@ -71,3 +71,22 @@ if [ "$HTTP_CODE" -ne 200 ]; then
 else
     echo "Congrats! You hosted your website on the Internet!"
 fi
+
+# Define the private IPs (or internal DNS names) of all servers
+OTHER_SERVERS=(
+  "ec2-user@172.31.0.11"  # database server
+  "ec2-user@172.31.0.8"  # backend server
+  "ec2-user@172.31.0.5"  # frontend server
+)
+
+# Get the current server's private IP
+MY_IP=$(hostname -I | awk '{print $1}')
+
+for server in "${OTHER_SERVERS[@]}"; do
+  if [[ "$server" != *"$MY_IP"* ]]; then
+    echo "Fetching logs from $server..."
+    scp "$server:$LOGS_FOLDER/"*.log "$LOGS_FOLDER/" 2>/dev/null
+  fi
+done
+
+echo "Logs from all servers are now in: $LOGS_FOLDER"
