@@ -1,5 +1,6 @@
 #!/bin/bash
-export HOME=/home/ec2-user
+
+export HOME=/home/ec2-user # using sudo sh script.sh, the script runs as root, but SSH keys are in /home/ec2-user/.ssh
 
 USERID=$(id -u)    #check the user id 
 
