@@ -1,42 +1,56 @@
 #!/bin/bash
 
-USERID=$(id -u)    #check the user id 
-
 R="\e[31m"
 G="\e[32m"
 Y="\e[33m"
 N="\e[0m"
 
-SOURCE_DIR="/var/log/expense-logs"
+SOURCE_DIR=$1
+DESTINATION_DIR=$2
+DAYS=${3:-15}       #Assigning the default value to the third positional argument i.e, number of days
+
+LOGS_FOLDER="/hom/ec2-user/Expense-Project/expense-logs"
 LOG_FILE=$(echo $0 | cut -d "." -f1)
 TIMESTAMP=$(date +%d-%m-%Y-%H-%M-%S)
-LOG_FILE_NAME="$SOURCE_DIR/$LOG_FILE-$TIMESTAMP.log"
-
-VALIDATE(){
-    if [ $1 -ne 0 ]; then 
-        echo -e "$2 is $R Failure... $N" 
-        exit 1    #Failure occurs terminate the script without continuing      
-    else
-        echo -e "$2 is $G Success... $N"
-    fi
-}
-
-CHECK_ROOT(){
-    if [ $USERID -ne 0 ]; then
-        echo "Error:: you must have sudo access to privilage the script."
-        exit 1    #Failure occurs terminate the script without continuing
-    fi
-}
+LOG_FILE_NAME="$LOGS_FOLDER/$LOG_FILE-$TIMESTAMP.log"
 
 echo "script started executing at: $TIMESTAMP" &>>$LOG_FILE_NAME
 
-CHECK_ROOT
+USAGE(){
+    echo -e "$R USAGE:: $N sh 04-Deleting-old-logs.sh <SOURCE_DIR> <DESTINATION_DIR> <DAYS(optional)>"
+}
 
-FILES_TO_DELETE=$(find $SOURCE_DIR -name ".log" -mmin +10)
-echo "Files to be deleted: $FILES_TO_DELETE"
+if [ $# -lt 2 ]; then
+    USAGE
+    exit 1
+    if [ ! -d $SOURCE_DIR ]; then
+        echo -e "$SOURCE_DIR does not exist... please check it."
+        exit 1
+        if [ ! -d $DESTINATION_DIR ]; then
+            echo -e "$DESTINATION_DIR does not exist... please check it."
+            exit 1
+        fi
+    fi
+fi
 
-while read -r file
-do
-    echo "Deleting File: $file"
-    rm -rf $file
-done <<< $FILES_TO_DELETE
+
+FILES=$(find $SOURCE_DIR -name "*.log" -mtime +$DAYS)
+
+if [ -n $FILES ]; then
+    echo "FILES are: $FILES"
+    ZIP_FILE="$DESTINATION_DIR-$TIMESTAMP.zip"
+    find $SOURCE_DIR -name "*.log" -mtime +$DAYS | zip @ "$ZIP_FILE"
+    if [ -f "$ZIP_FILE" ]; then
+        echo -e "Successfully created zip file for the files older than $DAYS"
+        while read -r file
+        do
+            echo "Deleting File: $file"
+            rm -rf $file
+        done <<< $FILES
+    else
+        echo -e "$R ERROR:: $N Failed to create zip file"
+        exit 1
+    fi
+else
+    echo "No files found older than $DAYS"
+fi
