@@ -2,30 +2,31 @@
 
 R="\e[31m"
 G="\e[32m"
-Y="\e[33m"
 N="\e[0m"
 
 SOURCE_DIR="/home/ec2-user/Expense-Project/expense-logs"
 DESTINATION_DIR="s3://app1-expense-project-anjansriram.com/expense-logs"
-LOG_FILE=$(echo $0 | cut -d "." -f1)
+SCRIPT_NAME=$(basename "$0" | cut -d "." -f1)
 TIMESTAMP=$(date +%d-%m-%Y-%H-%M-%S)
-LOG_FILE_NAME="$SOURCE_DIR/$LOG_FILE-$TIMESTAMP.log"
+LOG_FILE_NAME="$SCRIPT_NAME-$TIMESTAMP.zip"
 TMP_DIR="/tmp"
+ZIP_PATH="$TMP_DIR/$LOG_FILE_NAME"
 
-echo "script started executing at: $TIMESTAMP" &>>$LOG_FILE_NAME
-
-if [ ! -d $SOURCE_DIR ]; then
-    echo -e "$SOURCE_DIR does not exist... please check it."
-    exit 1
-    if [ ! -d $DESTINATION_DIR ]; then
-        echo -e "$DESTINATION_DIR does not exist... please check it."
-        exit 1
-    fi
+# Ensure logs folder exists
+if [ ! -d "$SOURCE_DIR" ]; then
+  echo -e "$R$SOURCE_DIR does not exist... please check it.$N"
+  exit 1
 fi
 
-# Create zip archive of log files
+# Check if there are any log files
+if ! ls "$SOURCE_DIR"/*.log &>/dev/null; then
+  echo -e "$R No .log files found in $SOURCE_DIR. Aborting.$N"
+  exit 1
+fi
+
+# Zip log files
 echo -e "Zipping log files..."
-zip -j "$TMP_DIR/$LOG_FILE_NAME" "$SOURCE_DIR"/*.log &>/dev/null
+zip -j "$ZIP_PATH" "$SOURCE_DIR"/*.log &>/dev/null
 
 if [ $? -ne 0 ]; then
   echo -e "$R Failed to create zip file. Aborting.$N"
@@ -33,8 +34,8 @@ if [ $? -ne 0 ]; then
 fi
 
 # Upload to S3
-echo -e "Uploading $LOG_FILE_NAME to S3..."
-aws s3 cp "$TMP_DIR/$LOG_FILE_NAME" "$DESTINATION_DIR"
+echo -e "Uploading $ZIP_PATH to S3..."
+aws s3 cp "$ZIP_PATH" "$DESTINATION_DIR"
 
 if [ $? -eq 0 ]; then
   echo -e "$G Upload successful. Deleting original logs...$N"
@@ -45,6 +46,16 @@ else
 fi
 
 
+
+
+# if [ ! -d $SOURCE_DIR ]; then
+#     echo -e "$SOURCE_DIR does not exist... please check it."
+#     exit 1
+#     if [ ! -d $DESTINATION_DIR ]; then
+#         echo -e "$DESTINATION_DIR does not exist... please check it."
+#         exit 1
+#     fi
+# fi
 
 # FILES=$(find $SOURCE_DIR -name "*.log" -mtime +$DAYS)
 
