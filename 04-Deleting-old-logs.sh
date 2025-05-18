@@ -9,7 +9,7 @@ SOURCE_DIR=$1
 DESTINATION_DIR=$2
 DAYS=${3:-15}       #Assigning the default value to the third positional argument i.e, number of days
 
-LOGS_FOLDER="/hom/ec2-user/Expense-Project/expense-logs"
+LOGS_FOLDER="/home/ec2-user/Expense-Project/expense-logs"
 LOG_FILE=$(echo $0 | cut -d "." -f1)
 TIMESTAMP=$(date +%d-%m-%Y-%H-%M-%S)
 LOG_FILE_NAME="$LOGS_FOLDER/$LOG_FILE-$TIMESTAMP.log"
