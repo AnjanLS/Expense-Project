@@ -19,7 +19,7 @@ USAGE(){
     exit 1
 }
 
-echo "Script started executing at: $TIMESTAMP" &>>$LOG_FILE_NAME
+# echo "Script started executing at: $TIMESTAMP" &>>$LOG_FILE_NAME
 
 mkdir -p /tmp/expense-logs
 
