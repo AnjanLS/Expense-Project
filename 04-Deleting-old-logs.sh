@@ -1,84 +1,62 @@
 #!/bin/bash
 
+# Color codes
 R="\e[31m"
 G="\e[32m"
 Y="\e[33m"
 N="\e[0m"
 
-SOURCE_DIR=$1
-DEST_DIR=$2
-DAYS=${3:-7} # if user is not providing number of days, we are taking week as default
-
-# LOGS_FOLDER="/home/ec2-user/Expense-Project/expense-logs"
-LOG_FILE=$(echo $0 | awk -F "/" '{print $NF}' | cut -d "." -f1 )
+# Configurable variables
+SOURCE_DIR="/home/ec2-user/Expense-Project/expense-logs"
+DEST_DIR="/tmp/expense-logs"
+LOG_FILE=$(basename "$0" | cut -d "." -f1)
 TIMESTAMP=$(date +%Y-%m-%d-%H-%M-%S)
-LOG_FILE_NAME="$LOG_FILE-$TIMESTAMP.log"
-# LOG_FILE_NAME="$LOGS_FOLDER/$LOG_FILE-$TIMESTAMP.log"
+LOG_FILE_NAME="$LOG_FILE--$TIMESTAMP.log"
+DAYS=${1:-7} # Default to 7 days if not provided
 
-USAGE(){
-    echo -e "$R USAGE:: $N sh 18-backup.sh <SOURCE_DIR> <DEST_DIR> <DAYS(Optional)>"
+# Ensure destination directory exists
+mkdir -p "$DEST_DIR"
+
+# Check if source directory exists
+if [ ! -d "$SOURCE_DIR" ]; then
+    echo -e "${R}Error:${N} SOURCE_DIR '$SOURCE_DIR' does not exist. Please check the path."
     exit 1
-}
-
-# echo "Script started executing at: $TIMESTAMP" &>>$LOG_FILE_NAME
-
-mkdir -p /tmp/expense-logs
-
-if [ $# -lt 2 ]; then
-  USAGE
-  if [ ! -d "$SOURCE_DIR" ]; then
-    echo -e "$SOURCE_DIR Does not exist...Please check"
-    exit 1
-    if [ ! -d "$DEST_DIR" ]; then
-      echo -e "$DEST_DIR Does not exist...Please check"
-      exit 1
-    fi
-  fi
 fi
 
-FILES=$(find $SOURCE_DIR -name "*.log" -mtime +$DAYS)
+# Check if destination directory exists
+if [ ! -d "$DEST_DIR" ]; then
+    echo -e "${R}Error:${N} DEST_DIR '$DEST_DIR' does not exist. Please check the path."
+    exit 1
+fi
 
-if [ -n "$FILES" ] # true if there are files to zip
-then
-    echo "Files are: $FILES"
-    ZIP_FILE="$DEST_DIR/app-logs-$TIMESTAMP.zip"
-    find $SOURCE_DIR -name "*.log" -mtime +$DAYS | zip -@ "$ZIP_FILE"
-    if [ -f "$ZIP_FILE" ]
-    then
-        echo -e "Successfully created zip file for files older than $DAYS"
-        while read -r filepath # here filepath is the variable name, you can give any name
-        do
-            echo "Deleting file: $filepath" &>>$LOG_FILE_NAME
-            rm -rf $filepath
-            echo "Deleted file: $filepath"
-        done <<< $FILES
+# Logging start
+echo "Script started at: $TIMESTAMP" &>> "$LOG_FILE_NAME"
+
+# Find log files older than $DAYS
+FILES=$(find "$SOURCE_DIR" -name "*.log" -mtime +"$DAYS")
+
+if [ -n "$FILES" ]; then
+    echo -e "${G}Found the following files to archive:${N}" &>> "$LOG_FILE_NAME"
+    echo "$FILES" &>> "$LOG_FILE_NAME"
+    ZIP_FILE="$DEST_DIR/expense-logs--$TIMESTAMP.zip"
+    
+    # Archive files
+    echo "$FILES" | zip -@ "$ZIP_FILE" &>> "$LOG_FILE_NAME"
+    
+    if [ -f "$ZIP_FILE" ]; then
+        echo -e "${G}ZIP file created successfully:${N} $ZIP_FILE"
+        
+        # Delete the archived files
+        while read -r filepath; do
+            echo "Deleting $filepath" &>> "$LOG_FILE_NAME"
+            rm -f "$filepath"
+        done <<< "$FILES"
+
+        echo -e "${G}Deleted all archived log files.${N}"
     else
-        echo -e "$R Error:: $N Failed to create ZIP file "
+        echo -e "${R}Error:${N} Failed to create ZIP file" &>> "$LOG_FILE_NAME"
         exit 1
     fi
 else
-    echo "No files found older than $DAYS"
+    echo -e "${Y}No log files older than $DAYS days found.${N}"
 fi
-
-
-
-# # Zip log files
-# echo -e "Zipping log files..."
-# zip -j "$ZIP_PATH" "$SOURCE_DIR"/*.log &>/dev/null
-
-# if [ $? -ne 0 ]; then
-#   echo -e "$R Failed to create zip file. Aborting.$N"
-#   exit 1
-# fi
-
-# # Upload to S3
-# echo -e "Uploading $ZIP_PATH to S3..."
-# aws s3 cp "$ZIP_PATH" "$DESTINATION_DIR"
-
-# if [ $? -eq 0 ]; then
-#   echo -e "$G Upload successful. Deleting original logs...$N"
-#   rm -f "$SOURCE_DIR"/*.log
-#   echo -e "$G Log files deleted from server.$N"
-# else
-#   echo -e "$R Upload failed. Logs not deleted.$N"
-# fi
