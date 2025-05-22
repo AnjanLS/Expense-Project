@@ -8,7 +8,7 @@ N="\e[0m"
 
 # Configurable variables
 SOURCE_DIR="/home/ec2-user/Expense-Project/expense-logs"
-DEST_DIR="/tmp/expense-logs"
+DEST_DIR="/mnt/shared-logs"
 LOG_META_DIR="/home/ec2-user/Expense-Project/archived-logs"
 
 SCRIPT_NAME=$(basename "$0" | cut -d "." -f1)
@@ -63,3 +63,21 @@ if [ -n "$FILES" ]; then
 else
     echo -e "${Y}No log files older than $DAYS days found in $SOURCE_DIR.${N}" | tee -a "$LOG_FILE_NAME"
 fi
+
+
+# Send the zip to other servers
+OTHER_SERVERS=(
+  "172.31.0.8"  # Backend
+  "172.31.0.9"  # Frontend
+  "172.31.0.11" # Database
+)
+
+# Skip sending to self
+MY_IP=$(hostname -I | awk '{print $1}')
+
+for ip in "${OTHER_SERVERS[@]}"; do
+  if [ "$ip" != "$MY_IP" ]; then
+    echo "Sending $ZIP_FILE to $ip..."
+    scp "$ZIP_FILE" "ec2-user@$ip:$DEST_DIR/"
+  fi
+done
