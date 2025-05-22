@@ -75,9 +75,13 @@ OTHER_SERVERS=(
 # Skip sending to self
 MY_IP=$(hostname -I | awk '{print $1}')
 
-for ip in "${OTHER_SERVERS[@]}"; do
-  if [ "$ip" != "$MY_IP" ]; then
-    echo "Sending $ZIP_FILE to $ip..."
-    scp "$ZIP_FILE" "ec2-user@$ip:$DEST_DIR/"
-  fi
-done
+if [ -f "$ZIP_FILE" ]; then
+  for ip in "${OTHER_SERVERS[@]}"; do
+    if [ "$ip" != "$MY_IP" ]; then
+      echo "Sending $ZIP_FILE to $ip..."
+      scp "$ZIP_FILE" "ec2-user@$ip:$DEST_DIR/"
+    fi
+  done
+else
+  echo -e "${Y}No ZIP file to send. Skipping SCP.${N}"
+fi
