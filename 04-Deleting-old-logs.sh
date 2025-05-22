@@ -19,6 +19,12 @@ DAYS=${1:-7}  # Default to 7 days if not provided
 # Ensure necessary directories exist
 mkdir -p "$DEST_DIR" "$LOG_META_DIR"
 
+# Check for 'zip' command and install if missing
+if ! command -v zip &>/dev/null; then
+    echo -e "${Y}zip package not found. Installing...${N}"
+    sudo dnf install zip -y
+fi
+
 # Validate source directory
 if [ ! -d "$SOURCE_DIR" ]; then
     echo -e "${R}Error:${N} Source directory '$SOURCE_DIR' does not exist. Exiting."
