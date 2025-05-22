@@ -16,13 +16,13 @@ TIMESTAMP=$(date +%Y-%m-%d-%H-%M-%S)
 LOG_FILE_NAME="$LOG_META_DIR/${SCRIPT_NAME}--${TIMESTAMP}.log"
 DAYS=${1:-7}  # Default to 7 days if not provided
 
-# Ensure necessary directories exist
+# Ensure required directories exist
 mkdir -p "$DEST_DIR" "$LOG_META_DIR"
 
-# Check for 'zip' command and install if missing
+# Check for 'zip' command
 if ! command -v zip &>/dev/null; then
     echo -e "${Y}zip package not found. Installing...${N}"
-    sudo dnf install zip -y
+    sudo dnf install zip -y &>> "$LOG_FILE_NAME"
 fi
 
 # Validate source directory
@@ -31,7 +31,7 @@ if [ ! -d "$SOURCE_DIR" ]; then
     exit 1
 fi
 
-# Logging script start
+# Log script start
 echo "Script started at: $TIMESTAMP" >> "$LOG_FILE_NAME"
 
 # Find .log files older than $DAYS
@@ -49,7 +49,7 @@ if [ -n "$FILES" ]; then
     if [ -f "$ZIP_FILE" ]; then
         echo -e "${G}ZIP file created at:${N} $ZIP_FILE" | tee -a "$LOG_FILE_NAME"
 
-        # Delete the archived files
+        # Delete archived files
         while read -r filepath; do
             echo "Deleting $filepath" >> "$LOG_FILE_NAME"
             rm -f "$filepath"
@@ -64,24 +64,23 @@ else
     echo -e "${Y}No log files older than $DAYS days found in $SOURCE_DIR.${N}" | tee -a "$LOG_FILE_NAME"
 fi
 
-
-# Send the zip to other servers
+# Send zip file to other servers
 OTHER_SERVERS=(
   "172.31.0.8"  # Backend
   "172.31.0.9"  # Frontend
   "172.31.0.11" # Database
 )
 
-# Skip sending to self
+# Get local IP address (first non-loopback IP)
 MY_IP=$(hostname -I | awk '{print $1}')
 
 if [ -f "$ZIP_FILE" ]; then
   for ip in "${OTHER_SERVERS[@]}"; do
     if [ "$ip" != "$MY_IP" ]; then
-      echo "Sending $ZIP_FILE to $ip..."
-      scp "$ZIP_FILE" "ec2-user@$ip:$DEST_DIR/"
+      echo "Sending $ZIP_FILE to $ip..." | tee -a "$LOG_FILE_NAME"
+      scp "$ZIP_FILE" "ec2-user@$ip:$DEST_DIR/" >> "$LOG_FILE_NAME" 2>&1
     fi
   done
 else
-  echo -e "${Y}No ZIP file to send. Skipping SCP.${N}"
+  echo -e "${Y}No ZIP file to send. Skipping SCP.${N}" | tee -a "$LOG_FILE_NAME"
 fi
