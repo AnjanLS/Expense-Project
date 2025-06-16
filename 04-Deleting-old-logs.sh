@@ -22,19 +22,25 @@ PERMS=$(stat -c '%a' "$DEST_DIR")
 # Ensure required directories exist
 mkdir -p "$DEST_DIR" "$LOG_META_DIR"
 
+# Ensure archived-logs dir is writable
+if [ ! -w "$LOG_META_DIR" ]; then
+  sudo chown ec2-user:ec2-user "$LOG_META_DIR" &>> "$LOG_FILE_NAME"
+  sudo chmod 755 "$LOG_META_DIR" &>> "$LOG_FILE_NAME"
+fi
+
 # Ensure destination directory is writable
 if [ "$OWNER" != "ec2-user" ]; then
   echo "Owner is $OWNER, changing to ec2-user..."
   sudo chown ec2-user:ec2-user "$DEST_DIR"
 else
-  echo "Owner is already ec2-user" >> "$LOG_FILE_NAME"
+  echo "Owner is already ec2-user" &>> "$LOG_FILE_NAME"
 fi
 
 if [ "$PERMS" != "755" ]; then
   echo "Permissions are $PERMS, changing to 755..."
   sudo chmod 777 "$DEST_DIR"
 else
-  echo "Permissions already set to 755" >> "$LOG_FILE_NAME"
+  echo "Permissions already set to 755" &>> "$LOG_FILE_NAME"
 fi
 
 # Check for 'zip' command
