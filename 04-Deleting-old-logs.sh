@@ -27,14 +27,14 @@ if [ "$OWNER" != "ec2-user" ]; then
   echo "Owner is $OWNER, changing to ec2-user..."
   sudo chown ec2-user:ec2-user "$DEST_DIR"
 else
-  echo "Owner is already ec2-user"
+  echo "Owner is already ec2-user" >> "$LOG_FILE_NAME"
 fi
 
 if [ "$PERMS" != "755" ]; then
   echo "Permissions are $PERMS, changing to 755..."
   sudo chmod 755 "$DEST_DIR"
 else
-  echo "Permissions already set to 755"
+  echo "Permissions already set to 755" >> "$LOG_FILE_NAME"
 fi
 
 # Check for 'zip' command
