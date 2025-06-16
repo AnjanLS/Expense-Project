@@ -16,28 +16,25 @@ TIMESTAMP=$(date +%Y-%m-%d-%H-%M-%S)
 LOG_FILE_NAME="$LOG_META_DIR/${SCRIPT_NAME}--${TIMESTAMP}.log"
 DAYS=${1:-7}  # Default to 7 days if not provided
 
+OWNER=$(stat -c '%U' "$DEST_DIR")
+PERMS=$(stat -c '%a' "$DEST_DIR")
+
 # Ensure required directories exist
 mkdir -p "$DEST_DIR" "$LOG_META_DIR"
 
 # Ensure destination directory is writable
-if [ ! -w "$DEST_DIR" ]; then
-    echo -e "${Y}Permission issue detected on $DEST_DIR. Attempting to fix...${N}" | tee -a "$LOG_FILE_NAME"
-    sudo chown ec2-user:ec2-user "$DEST_DIR" &>> "$LOG_FILE_NAME"
-    sudo chmod 755 "$DEST_DIR" &>> "$LOG_FILE_NAME"
-    
-    # Force fix again if still not writable
-    if [ ! -w "$DEST_DIR" ]; then
-        echo -e "${Y}Retrying permission fix on $DEST_DIR...${N}" | tee -a "$LOG_FILE_NAME"
-        sudo chown ec2-user:ec2-user /mnt/shared-logs
-        sudo chmod 755 /mnt/shared-logs
-    fi
+if [ "$OWNER" != "ec2-user" ]; then
+  echo "Owner is $OWNER, changing to ec2-user..."
+  sudo chown ec2-user:ec2-user "$DEST_DIR"
+else
+  echo "Owner is already ec2-user"
+fi
 
-    if [ ! -w "$DEST_DIR" ]; then
-        echo -e "${R}Error:${N} Still cannot write to $DEST_DIR. Exiting." | tee -a "$LOG_FILE_NAME"
-        exit 1
-    else
-        echo -e "${G}Permission issue resolved for $DEST_DIR.${N}" | tee -a "$LOG_FILE_NAME"
-    fi
+if [ "$PERMS" != "755" ]; then
+  echo "Permissions are $PERMS, changing to 755..."
+  sudo chmod 755 "$DEST_DIR"
+else
+  echo "Permissions already set to 755"
 fi
 
 # Check for 'zip' command
