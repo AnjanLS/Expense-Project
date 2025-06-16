@@ -19,6 +19,19 @@ DAYS=${1:-7}  # Default to 7 days if not provided
 # Ensure required directories exist
 mkdir -p "$DEST_DIR" "$LOG_META_DIR"
 
+# Ensure destination directory is writable
+if [ ! -w "$DEST_DIR" ]; then
+    echo -e "${Y}Permission issue detected on $DEST_DIR. Attempting to fix...${N}" | tee -a "$LOG_FILE_NAME"
+    sudo chown ec2-user:ec2-user "$DEST_DIR" &>> "$LOG_FILE_NAME"
+    sudo chmod 755 "$DEST_DIR" &>> "$LOG_FILE_NAME"
+    if [ ! -w "$DEST_DIR" ]; then
+        echo -e "${R}Error:${N} Still cannot write to $DEST_DIR. Exiting." | tee -a "$LOG_FILE_NAME"
+        exit 1
+    else
+        echo -e "${G}Permission issue resolved for $DEST_DIR.${N}" | tee -a "$LOG_FILE_NAME"
+    fi
+fi
+
 # Check for 'zip' command
 if ! command -v zip &>/dev/null; then
     echo -e "${Y}zip package not found. Installing...${N}"
