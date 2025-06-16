@@ -24,6 +24,14 @@ if [ ! -w "$DEST_DIR" ]; then
     echo -e "${Y}Permission issue detected on $DEST_DIR. Attempting to fix...${N}" | tee -a "$LOG_FILE_NAME"
     sudo chown ec2-user:ec2-user "$DEST_DIR" &>> "$LOG_FILE_NAME"
     sudo chmod 755 "$DEST_DIR" &>> "$LOG_FILE_NAME"
+    
+    # Force fix again if still not writable
+    if [ ! -w "$DEST_DIR" ]; then
+        echo -e "${Y}Retrying permission fix on $DEST_DIR...${N}" | tee -a "$LOG_FILE_NAME"
+        sudo chown ec2-user:ec2-user /mnt/shared-logs
+        sudo chmod 755 /mnt/shared-logs
+    fi
+
     if [ ! -w "$DEST_DIR" ]; then
         echo -e "${R}Error:${N} Still cannot write to $DEST_DIR. Exiting." | tee -a "$LOG_FILE_NAME"
         exit 1
