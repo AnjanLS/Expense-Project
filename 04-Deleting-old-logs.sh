@@ -37,10 +37,10 @@ else
 fi
 
 if [ "$PERMS" != "755" ]; then
-  echo "Permissions are $PERMS, changing to 755..." &>> "$LOG_FILE_NAME"
+  echo "Permissions are $PERMS, changing to 777..." &>> "$LOG_FILE_NAME"
   sudo chmod 777 "$DEST_DIR" 
 else
-  echo "Permissions already set to 755" &>> "$LOG_FILE_NAME"
+  echo "Permissions already set to 777" &>> "$LOG_FILE_NAME"
 fi
 
 # Check for 'zip' command
