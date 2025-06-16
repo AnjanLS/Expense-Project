@@ -85,7 +85,7 @@ fi
 # Send zip file to other servers
 OTHER_SERVERS=(
   "172.31.0.8"  # Backend
-  "172.31.0.9"  # Frontend
+  "172.31.0.5"  # Frontend
   "172.31.0.11" # Database
 )
 
